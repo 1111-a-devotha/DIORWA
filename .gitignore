@@ -1,0 +1,13 @@
+# Secrets and local settings
+php/config.local.php
+.env
+# User uploads (keep the folder and its .htaccess)
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
+# Misc
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,38 @@
+# Optional: upload the site to your PHP host by FTP every time you push to main.
+# Add these in GitHub: Settings > Secrets and variables > Actions > New repository secret
+#   FTP_SERVER, FTP_USERNAME, FTP_PASSWORD   (and optionally FTP_DIR, e.g. /public_html/)
+# Create php/config.local.php on the server once by hand; this workflow never overwrites it.
+name: Deploy to hosting (FTP)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: '8.2' }
+      - name: Check PHP syntax
+        run: find . -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+  deploy:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload by FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_DIR || './' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            README.md
+            database/**
+            php/config.local.php
+            uploads/**
